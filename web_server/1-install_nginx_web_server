@@ -1,29 +1,14 @@
 #!/usr/bin/env bash
-# Installing nginx on a server and configuring a simple server
+# Installs and sets up dev environment for ngnix
 
-# Updating packages
-sudo apt-get update -y && sudo apt-get upgrade -y
-
-# Installing nginx
-sudo apt-get install nginx -y
-
-# Creating an index html file
-echo "Holberton School" | sudo tee /var/www/html/index.html
-
-# Altering the server config to create a server
-echo "
-events {
-
-}
-
-http {
-	server {
-		listen 80;
-		index index.html;
-		root /var/www/html;
-	}
-}
-"  | sudo tee /etc/nginx/nginx.conf
-
-# Restarting the server with the new config
-sudo service nginx restart
+apt-get update
+apt-get -y install nginx
+echo "Hello World!" > /var/www/html/index.html
+# sed -i "s/listen [0-9]* default_server;/listen 80 default_server;/g" /etc/nginx/sites-available/default
+# sed -i "s/listen \[.*\].[0-9]* default_server;/listen [::]:80 default_server;/g" /etc/nginx/sites-available/default
+if [ "$(pgrep -x 'nginx' | wc -l)" -ge 1 ]
+then
+    service nginx restart
+else
+    service nginx start
+fi
