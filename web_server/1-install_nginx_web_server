@@ -1,8 +1,42 @@
 #!/usr/bin/env bash
-# Install nginx and start it
-apt-get -y install nginx
-service nginx start
-ufw allow 'Nginx HTTP'
-echo "Holberton School\n" | sudo tee /var/www/html/index.nginx-debian.html
-service nginx restart#!/usr/bin/env bash
+# Function to display usage and exit on incorrect arguments
+usage() {
+    echo "Usage: $0 PATH_TO_FILE IP USERNAME PATH_TO_SSH_KEY"
+    exit 1
+}
+
+# Check if correct number of arguments are provided
+if [ "$#" -ne 4 ]; then
+    usage
+fi
+
+# Assigning arguments to descriptive variables
+PATH_TO_FILE="$1"
+IP="$2"
+USERNAME="$3"
+PATH_TO_SSH_KEY="$4"
+
+# Install nginx
+sudo apt-get -y update
+sudo apt-get -y install nginx
+
+# Create index.html with content
+echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
+
+# Restart Nginx
+sudo kill -s HUP $(cat /var/run/nginx.pid)
+
+# Transfer file using scp
+scp -o "StrictHostKeyChecking=no" -i "$PATH_TO_SSH_KEY" "$PATH_TO_FILE" "$USERNAME@$IP:~/"
+
+# Check if Nginx root page contains the string "Holberton School"
+output=$(curl -s http://localhost)
+
+# Convert output to lowercase and check if it contains "holberton school"
+if [[ $(echo "$output" | tr '[:upper:]' '[:lower:]') == *"holberton school"* ]]; then
+    echo "Holberton School string found in Nginx root page"
+else
+    echo "Holberton School string not found in Nginx root page"
+    exit 1
+fi
 
