@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
-# Installs and sets up dev environment for ngnix
+# installs nginx and configures it on a remote server
 
-apt-get update
+apt-get -y update
 apt-get -y install nginx
-echo "Hello World!" > /var/www/html/index.html
-# sed -i "s/listen [0-9]* default_server;/listen 80 default_server;/g" /etc/nginx/sites-available/default
-# sed -i "s/listen \[.*\].[0-9]* default_server;/listen [::]:80 default_server;/g" /etc/nginx/sites-available/default
-if [ "$(pgrep -x 'nginx' | wc -l)" -ge 1 ]
-then
-    service nginx restart
-else
-    service nginx start
-fi
+ufw allow 'Nginx HTTP'
+echo 'Hello World!' > /var/www/html/index.nginx-debian.html
+service nginx start
