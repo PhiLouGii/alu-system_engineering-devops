@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Installs and sets up dev environment for ngnix
+# installing and config nginx
 
 apt-get update
 apt-get -y install nginx
-sudo ufw allow 'Nginx HTTP'
-mkdir -p /var/www/html/
-sudo chmod -R 755 /var/www
-echo "Hello World!" > /var/www/html/index.html
-SERVER_CONFIG=\
+
+# adding a html page
+echo "Holberton School" > /var/www/html/index.html
+
+CONFIG=\
 "server {
 	listen 80 default_server;
   	listen [::]:80 default_server;
@@ -16,17 +16,22 @@ SERVER_CONFIG=\
 
         index index.html index.htm index.nginx-debian.html;
 	server_name _;
+	rewrite ^/redirect_me(.*)$ http://www.google.com/ permanent;
         location / {
                 try_files \$uri \$uri/ =404;
 	}
-        rewrite ^/redirect_me(.*)$ http://www.youtube.com/ permanent;
 }"
 
-echo -e "$SERVER_CONFIG" > /etc/nginx/sites-enabled/default
+echo -e "$CONFIG" > /etc/nginx/sites-enabled/default
 
-if [ "$(pgrep 'nginx' | wc -l)" -ge 1 ]
+# checking if service is running
+state=$(pgrep nginx)
+if [ -n "$state" ];
 then
-    service nginx restart
+	sudo service nginx restart
+	echo "resarting Nginx...."
 else
-    service nginx start
+	sudo service nginx start
+	echo "Ngix started.."
 fi
+echo "done"
