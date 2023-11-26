@@ -1,24 +1,30 @@
 #!/usr/bin/env bash
-# bash script to install nginx web server & make the following configurations:
 
-apt-get update
-apt-get install -y nginx
+# ... (previous script content)
 
-mkdir /etc/nginx/html
+# Configure Nginx server block
+cat <<EOF > /etc/nginx/sites-available/default
+server {
+    listen      80 default_server;
+    listen      [::]:80 default_server;
+    root        /etc/nginx/html;
+    index       index.html index.htm;
 
-touch /etc/nginx/html/index.html
-
-echo "Holberton School" > /etc/nginx/html/index.html
-printf %s "server {
-     listen      80 default_server;
-     listen      [::]:80 default_server;
-     root        /etc/nginx/html;
-     index       index.html index.htm;
-     location /redirect_me {
+    location /redirect_me {
         return 301 http://youtube.com/;
     }
 }
-" > /etc/nginx/sites-available/default
+EOF
 
+# Restart Nginx service
+service nginx restart
 
-sudo service nginx restart
+# Perform a curl request to check if redirection is working as expected
+redirect_status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/redirect_me)
+
+# Check if the redirection returns the expected 301 status code
+if [ "$redirect_status" -eq 301 ]; then
+    echo "Your web server returns a '301 Moved Permanently' when querying /redirect_me"
+else
+    echo "The redirection is not working as expected. Got $redirect_status"
+fi
