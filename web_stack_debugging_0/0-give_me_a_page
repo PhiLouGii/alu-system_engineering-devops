@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#installing Apache in container and returning a page with a string
+sudo apt update
+sudo apt install apache2
+echo "Hello Holberton" | sudo tee /var/www/html/index.html
+sudo service apache2 restart
